@@ -20,7 +20,7 @@
             align-items: center;
         }
         .chat-header {
-            background-color: #075e54;
+            background-color: #2E80DC;
             color: #fff;
             padding: 10px 20px;
             text-align: center;

@@ -14,9 +14,9 @@
         h2 {
             text-align: center;
             margin-top: 20px;
-            color: #333;
+            color: #fff;
             margin: 0;
-            background-color: #ccc;
+            background-color: #2E80DC;
             padding: 20px 20px;
         }
         h3 {
@@ -47,10 +47,11 @@
             border-radius: 5px;
         }
         .clientList li:hover {
-            background-color: #f9f9f9;
+            background-color: #32BBB3;
         }
         .clientList li.active {
             background-color: #d4eaff;
+            border-radius: 7px;
         }
         #clientConversation {
             background-color: #fff;
@@ -77,7 +78,7 @@
         }
         .clientList li.unread {
             font-weight: bold;
-            background-color: #BBBBBB;
+            background-color: #E2A817;
             color: red;
             border-radius: 5px;
         }
@@ -97,15 +98,15 @@
         }
         button {
             padding: 10px 15px;
-            background-color: #007bff; 
+            background-color: #32BBB3;
             color: #fff; 
             border: none;
             border-radius: 3px;
             cursor: pointer;
             font-size: 14px;
         }
-        button:hover {
-            background-color: #0056b3; 
+        button:hover { 
+            background-color: #2E80DC;
         }
     </style>
     <title>LiveChat</title>

@@ -15,20 +15,24 @@
             text-align: center;
             margin-top: 20px;
             color: #333;
+            margin: 0;
+            background-color: #ccc;
+            padding: 20px 20px;
+        }
+        h3 {
+            text-align: center;
+            margin-top: 0;
+            color: #555;
         }
         .clientList {
             background-color: #fff;
             border-radius: 5px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             padding: 20px;
-            margin-left: 20px;
+            margin: 20px;
             width: 300px;
-            /* float: left; */
-            /* height: 81vh; */
-        }
-        .clientList h3 {
-            margin-top: 0;
-            color: #555;
+            float: left;
+            height: 77vh;
         }
         .clientList ul {
             list-style-type: none;
@@ -53,23 +57,20 @@
             border-radius: 5px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             padding: 20px;
-            margin: 20px auto;
-            max-width: 800px;
+            width: 65%;
             display: none;
-            overflow: hidden;
-        }
-        #clientConversation h3 {
-            margin-top: 0;
-            color: #555;
+            float: right;
+            margin: 20px;
+            height: 77vh;
         }
         .messageLog {
-            margin-top: 10px;
             padding: 10px;
             border: 1px solid #eee;
             border-radius: 5px;
             max-height: 400px;
             overflow-y: auto;
-            margin: 20px;
+            margin: 10px;
+            height: 500px;
         }
         .messageLog p {
             margin: 5px 0;
@@ -79,6 +80,32 @@
             background-color: #BBBBBB;
             color: red;
             border-radius: 5px;
+        }
+        .lisitra {
+            overflow-y: auto;
+            height: 69vh;
+        }
+        input[type="text"] {
+            padding: 5px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+            font-size: 14px;
+            width: 88.5%; 
+            margin-bottom: 8px;
+            outline: none;
+            height: 25px;
+        }
+        button {
+            padding: 10px 15px;
+            background-color: #007bff; 
+            color: #fff; 
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        button:hover {
+            background-color: #0056b3; 
         }
     </style>
     <title>LiveChat</title>
@@ -94,11 +121,12 @@
     </div>
    
     <!-- Zone de conversation avec le client sélectionné -->
-    <div id="clientConversation" style="display: none;">
+    <div id="clientConversation">
         <h3>Discussion avec le client <span id="selectedClientId"></span></h3>
         <div id="messageLog" class="messageLog"></div> 
+            <input type="text" placeholder="Entrez votre message">
+            <button>Envoyer</button>
     </div>  
-    
     <script src="./script/admin.js"></script>
 </body>
 </html>

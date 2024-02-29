@@ -51,8 +51,6 @@ function sendMessageToAdmin(message){
     messageLog.innerHTML += `<p><strong>Moi:</strong> ${message}</p>`;
 }
 
-
-// Fonction pour envoyer une image au serveur
 // Envoyer une image avec l'ID du client
 function sendImage() {
     const file = document.getElementById('imageInput').files[0];
@@ -74,9 +72,6 @@ function sendImage() {
     }
 }
 
-
-
-
 function getClientId() {
     // Supposons que l'ID du client est stocké dans un élément HTML avec l'ID 'clientID'
     // Vous pouvez récupérer cette valeur à partir du DOM
@@ -88,10 +83,8 @@ function getClientId() {
     }
 }
 
-
 // Écouter le changement dans l'élément d'entrée de type fichier
 document.getElementById('imageInput').addEventListener('change', sendImage);
-
 
 document.getElementById('sendMessageButton').addEventListener('click', () => {
     const userMessage = document.getElementById('messageInput').value.trim();

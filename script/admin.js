@@ -13,8 +13,11 @@ let existingClients = [];
 socket.addEventListener('message', (event) => {
     const data = JSON.parse(event.data);
     const clientId = data.clientId;
-    // Si le clientId existe
-    if (!existingClients.includes(clientId)) {
+
+    // Vérifier si le client existe déjà dans la liste
+    let existingItem = document.querySelector(`#clientList li[data-client-id="${clientId}"]`);
+
+    if (!existingItem) {
         const clientList = document.getElementById('clientList');
         // Afficher le client avec son ID
         const listItem = document.createElement('li');
@@ -31,9 +34,11 @@ socket.addEventListener('message', (event) => {
             // Marquer les messages comme lus lorsque le client est sélectionné
             markMessagesAsRead(clientId);
         });
-        clientList.appendChild(listItem);
-
-        existingClients.push(clientId);
+        // Insérer le nouvel élément au début de la liste
+        clientList.insertBefore(listItem, clientList.firstChild);
+    } else {
+        // Déplacer l'élément existant vers le début de la liste
+        existingItem.parentNode.insertBefore(existingItem, existingItem.parentNode.firstChild);
     }
     // Marquer les messages comme non lus lorsque de nouveaux messages arrivent
     markMessagesAsUnread(clientId);
@@ -73,52 +78,70 @@ socket.addEventListener('error', (event) => {
     console.error('WebSocket error', event);
 });
 
-// Ajouter des événements sur l'envoi de message...
-function createClientChatWindow(clientId) {
+// Ajoutez ce code pour afficher la section de conversation au chargement de la page
+document.addEventListener('DOMContentLoaded', function() {
     const clientConversation = document.getElementById('clientConversation');
-    const selectedClientIdSpan = document.getElementById('selectedClientId');
-    selectedClientIdSpan.textContent = clientId;
-
-    // Pour marquer les messages comme lus lorsque le client est sélectionné
-    markMessagesAsRead(clientId);
-
-    let clientMessageDiv = document.getElementById(`messageLog-${clientId}`);
-    if (!clientMessageDiv) {
-        clientMessageDiv = document.createElement('div');
-        clientMessageDiv.id = `messageLog-${clientId}`;
-        clientMessageDiv.innerHTML = `<h3>Messages du client ${clientId}</h3>`;
-        document.body.appendChild(clientMessageDiv);
-    }
-
-    // Vérifier si l'input existe déjà
-    let adminMessageInput = document.getElementById(`adminMessageInput_${clientId}`);
-    if (!adminMessageInput) {
-        // Ajouter un champ de saisie pour l'envoi de message au client spécifique
-        adminMessageInput = document.createElement('input');
-        adminMessageInput.setAttribute('type', 'text');
-        adminMessageInput.setAttribute('id', `adminMessageInput_${clientId}`);
-        adminMessageInput.setAttribute('placeholder', 'Envoyer un message');
-        clientMessageDiv.appendChild(adminMessageInput);
-
-        // Ajouter un bouton pour l'envoi de message au client spécifique
-        const sendAdminMessageButton = document.createElement('button');
-        sendAdminMessageButton.setAttribute('class', 'sendAdminMessageButton'); 
-        sendAdminMessageButton.setAttribute('data-client-id', clientId); 
-        sendAdminMessageButton.textContent = 'Envoyer';
-        clientMessageDiv.appendChild(sendAdminMessageButton);
-
-        // Ajouter un gestionnaire d'événements pour le bouton d'envoi de message
-        sendAdminMessageButton.addEventListener('click', () => {
-            const adminMessageInput = document.getElementById(`adminMessageInput_${clientId}`);
-            const adminMessage = adminMessageInput.value.trim();
-            if (adminMessage) {
-                sendMessageToClient(clientId, adminMessage);
-                adminMessageInput.value = '';
-            }
-        });
-    }
     clientConversation.style.display = 'block';
-}
+});
+
+// Ajoutez un gestionnaire d'événements pour le clic sur un client
+document.getElementById('clientList').addEventListener('click', (event) => {
+    if (event.target.tagName === 'LI') {
+        const clientId = event.target.getAttribute('data-client-id');
+        
+        // Marquez les messages du client comme lus
+        markMessagesAsRead(clientId);
+
+        // Créez dynamiquement les champs de saisie et les boutons pour la conversation avec ce client spécifique
+        const clientConversation = document.getElementById('clientConversation');
+        const selectedClientIdSpan = document.getElementById('selectedClientId');
+        selectedClientIdSpan.textContent = clientId;
+
+        // Vérifiez d'abord si le bouton d'envoi existe déjà pour ce client spécifique
+        const existingSendButton = document.querySelector(`#clientConversation button[data-client-id="${clientId}"]`);
+        if (!existingSendButton) {
+            // Ajoutez un gestionnaire d'événements pour le bouton d'envoi de message
+            sendAdminMessageButton.addEventListener('click', () => {
+                const adminMessageInput = document.getElementById(`adminMessageInput_${clientId}`);
+                const adminMessage = adminMessageInput.value.trim();
+                if (adminMessage) {
+                    sendMessageToClient(clientId, adminMessage);
+                    adminMessageInput.value = '';
+                }
+            });
+            // Affichez la section de la conversation client
+            clientConversation.style.display = 'block';
+        }
+    }
+});
+
+// Sélectionnez les éléments ajoutés
+const messageInput = document.querySelector('#clientConversation input[type="text"]');
+const sendButton = document.querySelector('#clientConversation button');
+
+// Ajoutez un gestionnaire d'événements pour le clic sur le bouton "Envoyer"
+sendButton.addEventListener('click', () => {
+    const message = messageInput.value.trim();
+    if (message) {
+        // Appel de la fonction pour envoyer le message
+        sendMessageToClient(selectedClientId.textContent, message);
+        // Effacer le champ de saisie après l'envoi du message
+        messageInput.value = '';
+    }
+});
+
+// Ajoutez un gestionnaire d'événements pour la pression de la touche "Entrée" dans le champ de texte
+messageInput.addEventListener('keypress', (event) => {
+    if (event.key === 'Enter') {
+        const message = messageInput.value.trim();
+        if (message) {
+            // Appel de la fonction pour envoyer le message
+            sendMessageToClient(selectedClientId.textContent, message);
+            // Effacer le champ de saisie après l'envoi du message
+            messageInput.value = '';
+        }
+    }
+});
 
 // Ajouter un gestionnaire d'événements pour le clic sur un client
 document.getElementById('clientList').addEventListener('click', (event) => {
@@ -133,6 +156,7 @@ function displayClientMessages(clientId) {
     const clientMessageDiv = document.getElementById('messageLog');
     clientMessageDiv.innerHTML = '';
 
+    // Vérifiez d'abord si des messages existent pour ce client
     if (clientMessages.hasOwnProperty(clientId)) {
         clientMessages[clientId].forEach(message => {
             if (message.type === 'image') {
@@ -143,18 +167,18 @@ function displayClientMessages(clientId) {
             } else {
                 // Si le message n'est pas une image, créez un élément de paragraphe et ajoutez-le à la zone de conversation
                 const messageElement = document.createElement('p');
-                messageElement.textContent = message.content;
+                // Afficher le message avec l'ID du client
+                messageElement.textContent = `Client ${clientId}: ${message.content}`;
                 clientMessageDiv.appendChild(messageElement);
             }
         });
     } else {
-        // Si aucun message n'existe pour ce client, affiche un message indiquant qu'aucun message n'est disponible
+        // Si aucun message n'existe pour ce client, affichez un message indiquant qu'aucun message n'est disponible
         const noMessageElement = document.createElement('p');
         noMessageElement.textContent = "Aucun message disponible pour ce client.";
         clientMessageDiv.appendChild(noMessageElement);
     }
 }
-
 
 // Fonction utilitaire pour vérifier si le message est une image base64
 function isBase64Image(message) {
@@ -193,7 +217,24 @@ document.getElementById('sendAdminMessageButton').addEventListener('click', () =
     }
 });
 
-// Afficher le message de l'admin...
+// Fonction pour afficher les messages de l'administrateur
 function displayAdminMessage(message) {
-    const messageLog = document.getElementById('messageLog');
+    const clientMessageDiv = document.getElementById('messageLog');
+    const messageElement = document.createElement('p');
+    messageElement.textContent = `Admin: ${message}`;
+    clientMessageDiv.appendChild(messageElement);
 }
+
+// Ajoutez un gestionnaire d'événements pour le clic sur le bouton d'envoi de message de l'administrateur
+document.getElementById('sendAdminMessageButton').addEventListener('click', () => {
+    const adminMessage = document.getElementById('adminMessageInput').value.trim();
+    const selectedClientId = document.getElementById('selectedClientId').textContent; // Récupérer l'ID du client à partir du span
+    if (adminMessage && selectedClientId) {
+        // Envoyer le message à ce client spécifique
+        sendMessageToClient(selectedClientId, adminMessage);
+        // Afficher le message de l'administrateur dans la zone de conversation
+        displayAdminMessage(adminMessage);
+        // Effacer le champ de saisie après l'envoi du message
+        document.getElementById('adminMessageInput').value = '';
+    }
+});
